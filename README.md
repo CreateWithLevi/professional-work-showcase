@@ -6,6 +6,8 @@ This repository serves as a detailed showcase of my key projects, highlighting m
 
 ## Technical Case Study: Zuoluh — Values-Aligned Spending & Insight Platform
 
+![zuoluh](https://github.com/user-attachments/assets/a3be791d-165a-4ced-ad04-e02a47b0dbd9)
+
 *Note: This project is currently in the architectural design and MVP development phase, showcasing my ability to architect a complex system from concept to execution.*
 
 ### 1. Project Description
@@ -33,6 +35,78 @@ As the technical lead, I have designed an **API-first, service-oriented architec
     * **AI Engine:** Utilizing **Google Gemini Flash 2.0** for its balance of performance and cost-effectiveness in generating personalized spending insights.
     * **Database & Caching:** **PostgreSQL** was chosen for its robustness and powerful querying capabilities, supplemented by a **Redis** cache layer to improve performance for frequently accessed data.
     * **Banking Integration:** Using the **Plaid API** for secure and standardized access to users' bank transaction data.
+ 
+```mermaid
+graph TB
+    subgraph "Frontend Layer"
+        PWA[PWA Application]
+        RN[React Native App<br/>Phase 2]
+    end
+    
+    subgraph "Backend Services"
+        AUTH[Authentication Service<br/>/auth]
+        TRANS[Transaction Service<br/>/transactions]
+        VALUES[Values Service<br/>/values]
+        INSIGHTS[Insights Service<br/>/insights]
+        PLAID_SVC[Plaid Service<br/>/plaid]
+    end
+    
+    subgraph "Core Services"
+        AI_ENGINE[AI Analysis Engine]
+        DATA_PROC[Data Processing Engine]
+    end
+    
+    subgraph "Data Layer"
+        DB[(PostgreSQL Database)]
+        CACHE[(Redis Cache)]
+    end
+    
+    subgraph "External APIs"
+        PLAID_API[Plaid API]
+        GEMINI_API[Google Gemini API]
+    end
+    
+    %% Connections
+    PWA --> AUTH
+    PWA --> TRANS
+    PWA --> VALUES
+    PWA --> INSIGHTS
+    PWA --> PLAID_SVC
+    
+    RN --> AUTH
+    RN --> TRANS
+    RN --> VALUES
+    RN --> INSIGHTS
+    RN --> PLAID_SVC
+
+    PLAID_SVC --> PLAID_API
+    INSIGHTS --> AI_ENGINE
+    AI_ENGINE --> GEMINI_API
+    
+    AUTH --> DB
+    TRANS --> DB
+    VALUES --> DB
+    INSIGHTS --> DB
+    PLAID_SVC --> DB
+    
+    DATA_PROC --> DB
+    DATA_PROC -- Processed Data --> CACHE
+    
+    AI_ENGINE -- Reads from --> DB
+    AI_ENGINE -- Reads from --> CACHE
+
+    classDef frontend fill:#E3F2FD,stroke:#1976D2,stroke-width:2px
+    classDef backend fill:#E8F5E8,stroke:#388E3C,stroke-width:2px
+    classDef core fill:#FFF3E0,stroke:#F57C00,stroke-width:2px
+    classDef data fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px
+    classDef external fill:#FFEBEE,stroke:#D32F2F,stroke-width:2px
+    
+    class PWA,RN frontend
+    class AUTH,TRANS,VALUES,INSIGHTS,PLAID_SVC backend
+    class AI_ENGINE,DATA_PROC core
+    class DB,CACHE data
+    class PLAID_API,GEMINI_API external
+```
 
 ### 4. Results & Vision
 
@@ -52,6 +126,8 @@ While the project is in its early stages, the architectural design is complete a
 ---
 
 ## Technical Case Study: Forexify — Intelligent Trading Platform
+
+![Forexify](https://github.com/user-attachments/assets/acfa3ec2-476f-456a-8e37-640cf123b01b)
 
 ### 1. Project Description
 
@@ -87,6 +163,55 @@ I designed and implemented a system with clear responsibilities and a modern tec
     * The backtesting engine was built using the classic **Strategy Pattern**.
     * It features a dispatcher that can dynamically execute strategies. For AI-generated strategies, it reads the Python code string from the database and uses `exec()` within a controlled, secure `GeneratedStrategy` class. The strict constraints from prompt engineering ensure the executed code is safe and contains only signal calculation logic.
     * The engine calculates key performance indicators, most importantly **Maximum Drawdown (MDD)**, providing users with an intuitive assessment of a strategy's risk.
+ 
+```mermaid
+graph TD
+    subgraph "User & Presentation Layer"
+        User(👤 User) --> Frontend[Forexify Web App<br/>Vue.js/Flask Templates]
+    end
+
+    subgraph "Infrastructure (Google Cloud Platform)"
+        subgraph "Backend API Layer (Python/Flask)"
+            direction LR
+            APIGateway[API Gateway<br/>Flask Blueprints]
+
+            subgraph "Core Services"
+                AILab[🤖 AI Strategy Lab]
+                BacktestEngine[📈 Backtesting Engine]
+                OtherServices[User & Product Services]
+            end
+        end
+
+        subgraph "Data Processing Pipeline (Cloud Run)"
+            direction LR
+            Crawler[Data Crawler] --> DataProcessor[Data Processor & Importer]
+        end
+
+        subgraph "Data Layer"
+            MySQLDB[(MySQL Database)]
+        end
+    end
+
+    subgraph "External Services"
+        OpenAI_API[OpenAI API]
+        FinancialDataSource[External Financial Data APIs]
+    end
+
+    %% --- Interactions & Data Flow ---
+    Frontend -- "HTTP/API Calls" --> APIGateway
+
+    APIGateway --> AILab
+    APIGateway --> BacktestEngine
+    APIGateway --> OtherServices
+
+    AILab -- "Sends Prompts" --> OpenAI_API
+    AILab -- "Read/Write Generated Strategies" --> MySQLDB
+    BacktestEngine -- "Read Historical Data & Strategies" --> MySQLDB
+    OtherServices -- "CRUD Operations" --> MySQLDB
+
+    Crawler -- "Fetches Raw Data" --> FinancialDataSource
+    DataProcessor -- "Writes Cleansed Time-Series Data" --> MySQLDB
+```
 
 ### 4. Results & Impact
 
@@ -108,6 +233,8 @@ The technical solutions led to significant and quantifiable positive impacts.
 ---
 
 ## Technical Case Study: Templeify — Digital Platform for a Traditional Temple
+
+![Templeify](https://github.com/user-attachments/assets/e20642a3-be71-4acd-b064-589ace443b3d)
 
 ### 1. Project Description
 
@@ -145,6 +272,59 @@ I implemented a pragmatic and robust technical solution to meet these challenges
 
 * **Security Measures:**
     * In addition to signature verification for webhooks, user passwords were saved using standard hashing algorithms. All database interactions utilized **Prepared Statements** to completely prevent SQL injection vulnerabilities.
+ 
+```mermaid
+sequenceDiagram
+    autonumber
+
+    participant User
+    participant Browser
+    participant Server as Our Server (Templeify Backend)
+    participant PaymentGateway as Payment Gateway (QPay)
+
+    User->>Browser: Clicks "Proceed to Checkout"
+
+    rect rgba(230, 240, 255, 0.5)
+        note over Browser, Server: Phase 1: Create Local Order
+        Browser->>Server: POST /api/order.php<br>(Request to create order)
+        activate Server
+        Server->>Server: Create order in DB with 'pending' status
+        Server-->>Browser: Return a dedicated QPay payment URL
+        deactivate Server
+    end
+
+    rect rgba(230, 255, 230, 0.5)
+        note over Browser, PaymentGateway: Phase 2: Proceed to Payment Gateway
+        Browser->>PaymentGateway: Redirects to QPay payment page
+        User->>PaymentGateway: Enters payment details and confirms
+    end
+
+    rect rgba(255, 245, 230, 0.5)
+        note over PaymentGateway, Server: Phase 3: Asynchronous Webhook Callback (Server-to-Server)
+        note right of User: While user waits,<br/>server processes notification in the background
+        PaymentGateway->>Server: [Webhook] POST /api/orderResult.php<br>(Asynchronously sends payment result)
+        activate Server
+        Server->>Server: **Core Step: Validate Request Signature**<br>(Ensures origin is QPay & data is untampered)
+        alt Signature validation successful
+            Server->>Server: Update order status to 'completed' in DB
+            Server-->>PaymentGateway: Respond with HTTP 200 OK
+        else Signature validation failed
+            Server-->>PaymentGateway: Respond with an error (e.g., 400) and log exception
+        end
+        deactivate Server
+    end
+
+    rect rgba(255, 230, 230, 0.5)
+        note over Browser, Server: Phase 4: User Returns to Store
+        PaymentGateway->>Browser: Redirects user back to the order result page
+        Browser->>Server: GET /order/success<br>(Request final order status from backend)
+        activate Server
+        Server->>Server: Query DB to confirm order status is 'completed'
+        Server-->>Browser: Return "Payment Successful" page
+        deactivate Server
+        Browser->>User: Displays "Transaction Successful" message
+    end
+```
 
 ### 4. Results & Impact
 
@@ -167,6 +347,8 @@ The solution brought concrete and measurable benefits to the temple.
 ---
 
 ## Technical Case Study: Apparel X — Multi-Tenant SaaS ERP Platform
+
+![Apparel X](https://github.com/user-attachments/assets/c295bf54-7c1b-4306-bf17-2509488e6c1e)
 
 ### 1. Project Description
 
@@ -212,6 +394,47 @@ To address these challenges, I designed and implemented a pragmatic and highly e
     * Authentication was managed via server-side sessions, and authorization was handled by checking the user's role on sensitive backend operations.
     * Database security was ensured by using **PDO with Prepared Statements** to prevent SQL injection.
     * GCP App Engine's **default auto-scaling mechanism** was leveraged to automatically manage server instances based on real-time traffic. This guaranteed system stability during peak business hours while saving costs during off-peak times.
+ 
+```mermaid
+graph TD
+ subgraph "User"
+     Client[Client Browser]
+ end
+
+ subgraph "Infrastructure: Google Cloud Platform"
+     subgraph "GCP App Engine (Auto-scaling)"
+         
+         subgraph "Frontend Layer (SPA-like Shell in PHP/jQuery)"
+             SPA["main.php (Application Shell)"]
+             Component["Dynamic Component (e.g., custin.php)"]
+         end
+
+         subgraph "Backend/API Layer (PHP)"
+             AuthAPI["Auth API (checkAuth.php)"]
+             RPC_API["RPC-style Feature APIs (/api/*)"]
+         end
+
+     end
+     
+     subgraph "Data Layer"
+         DB["MySQL Database<br>(Shared Schema, Tenant separation via 'clientid')"]
+     end
+ end
+
+   Client -- "A. HTTP Request" --> SPA
+   SPA -- "B. AJAX: Verify Session & Get Tenant ID" --> AuthAPI
+   AuthAPI -- "C. Validate & Fetch from DB" --> DB
+   DB -- "D. Return Tenant Info" --> AuthAPI
+   AuthAPI -- "E. Return Tenant Info (clientid)" --> SPA
+   
+   Client -- "F. Clicks Menu Link (#custin)" --> SPA
+   SPA -- "G. AJAX: Load Component into Shell" --> Component
+   
+   Component -- "H. AJAX: Request Data with 'clientid'" --> RPC_API
+   RPC_API -- "I. SELECT * FROM ... WHERE clientid=..." --> DB
+   DB -- "J. Return Filtered Data" --> RPC_API
+   RPC_API -- "K. Return Data (JSON)" --> Component
+```
 
 ### 4. Results & Impact
 
@@ -232,6 +455,8 @@ This solution delivered significant, positive outcomes for the Apparel X platfor
 ---
 
 ## Technical Case Study: "We Are Enough" — Interactive Narrative Experience
+
+![We Are Enough](https://github.com/user-attachments/assets/7cfffd56-5d6b-44e9-8fa5-34ec8fc0958e)
 
 ### 1. Project Description
 
@@ -266,6 +491,49 @@ I designed and implemented a precise frontend architecture with Vue.js as the fo
 * **Performance Optimization Strategy:**
     * **GPU Hardware Acceleration:** All animations were strictly limited to CSS `transform` and `opacity` properties, ensuring the calculations were handled by the GPU to achieve a silky-smooth 60fps frame rate.
     * **Event Debouncing:** The computationally expensive path generation function was wrapped in a `debounce` utility, ensuring it only runs after the user has finished resizing the window, preventing performance hits during high-frequency events.
+ 
+```mermaid
+graph LR
+    subgraph "Browser"
+        UserScroll["Browser Events<br/>(User Scroll, Resize)"]
+    end
+
+    subgraph "Backend"
+        direction LR
+        Laravel_API["Laravel Backend API"]
+    end
+
+    subgraph "Frontend Application"
+        direction TB
+        
+        subgraph "InvestmentTimeline.vue (Core Component)"
+            direction TB
+            IT_Component["Component Logic & State"]
+            SVG_Algo["Dynamic SVG Path Algorithm"]
+            DOM_Elements["Rendered DOM / SVG"]
+        end
+
+        subgraph "GSAP Animation Engine"
+            direction TB
+            ScrollTrigger["GSAP ScrollTrigger"]
+            MasterTimeline["GSAP Master Timeline"]
+        end
+        
+        IT_Component -- "Initializes & Defines Animations" --> MasterTimeline
+        IT_Component -- "Configures" --> ScrollTrigger
+    end
+
+    %% Data and Event Flows
+    Laravel_API -- "A. Provides Content Data" --> IT_Component
+    IT_Component -- "B. Renders Content" --> DOM_Elements
+    IT_Component -- "C. Triggers Path Calculation" --> SVG_Algo
+    DOM_Elements -- "D. Reads Block Dimensions" --> SVG_Algo
+    SVG_Algo -- "E. Returns Path Data" --> DOM_Elements
+
+    UserScroll -- "I. User Interacts" --> ScrollTrigger
+    ScrollTrigger -- "II. Updates/Scrubbs" --> MasterTimeline
+    MasterTimeline -- "III. Manipulates DOM Styles" --> DOM_Elements
+```
 
 ### 4. Results & Impact
 
