@@ -4,6 +4,53 @@ This repository serves as a detailed showcase of my key projects, highlighting m
 
 ---
 
+## Technical Case Study: Zuoluh — Values-Aligned Spending & Insight Platform
+
+*Note: This project is currently in the architectural design and MVP development phase, showcasing my ability to architect a complex system from concept to execution.*
+
+### 1. Project Description
+
+**Zuoluh** is a fintech platform designed to help users understand how their daily spending behavior aligns with their personal values. By integrating with bank accounts via the Plaid API and leveraging AI for analysis, the platform provides users with personalized insights, empowering them to make more conscious and value-driven financial decisions. The initial product will be a Progressive Web App (PWA), with plans to expand to a native mobile experience.
+
+### 2. The Challenge
+
+The primary architectural challenge is to build a secure, scalable, and highly personalized platform that can handle sensitive financial data while translating subjective user "values" into quantifiable analysis.
+
+* **Complex Third-Party Integrations:** The system requires robust and secure integration with multiple complex APIs, primarily **Plaid** for banking data and **Google Gemini** for AI-powered insights.
+* **Personalized & Subjective Logic:** Unlike traditional financial apps, the core logic revolves around mapping objective transaction data to a user's subjective, self-defined values (e.g., "Eco-friendly," "Fair Trade"), which requires a flexible and intelligent data model.
+* **Data Security & Privacy:** Handling personal financial transaction data demands the highest level of security, requiring a secure architecture and strict data handling protocols from day one.
+* **Scalable Data Modeling:** The database schema must efficiently map relationships between users, transactions, merchants, values, and external certifications (like B Corp), and be designed to scale as the user base and data complexity grow.
+
+### 3. My Solution (Architectural Vision)
+
+As the technical lead, I have designed an **API-first, service-oriented architecture** to ensure scalability and maintainability.
+
+* **Phased Rollout Strategy:** The product is planned in phases, starting with a **PWA** to quickly validate the core features and gather user feedback, followed by **React Native** development for market expansion.
+* **Core Data Structure:** I designed a normalized PostgreSQL database schema centered around key entities: `Users`, `Transactions`, `Values`, `UserValuePreferences`, and `Insights`. This structure allows for flexible querying and efficient analysis of how spending reflects user preferences.
+* **Technology Stack & Rationale:**
+    * **Frontend:** PWA (likely using React/Next.js) for its cross-platform reach and fast initial delivery.
+    * **Backend Services:** A series of dedicated backend services (Authentication, Transactions, Insights) to handle specific domains of business logic.
+    * **AI Engine:** Utilizing **Google Gemini Flash 2.0** for its balance of performance and cost-effectiveness in generating personalized spending insights.
+    * **Database & Caching:** **PostgreSQL** was chosen for its robustness and powerful querying capabilities, supplemented by a **Redis** cache layer to improve performance for frequently accessed data.
+    * **Banking Integration:** Using the **Plaid API** for secure and standardized access to users' bank transaction data.
+
+### 4. Results & Vision
+
+While the project is in its early stages, the architectural design is complete and lays a solid foundation for achieving the product's vision.
+
+* **Intended Outcome:** The primary goal is to empower users with unprecedented clarity on the alignment between their spending and personal values, fostering more conscious consumer behavior.
+* **Long-Term Vision:** The platform is designed with a long-term strategy to evolve into a B2B data insights service, providing anonymized market trend reports and forming value-aligned merchant partnerships.
+* **Demonstrated Capability:** This project showcases my ability to not only execute on development tasks but also to **architect a complex digital product from the ground up**, aligning a comprehensive technical strategy with a clear product roadmap and a viable business model.
+
+### Tech Stack (Planned)
+
+* **Frontend:** PWA (React/Next.js), React Native
+* **Backend:** Node.js (for services), PostgreSQL
+* **AI & Data:** Google Gemini, Redis, Plaid API
+* **Infrastructure:** Cloud-based deployment (e.g., Vercel, GCP)
+
+---
+
 ## Technical Case Study: Forexify — Intelligent Trading Platform
 
 ### 1. Project Description
