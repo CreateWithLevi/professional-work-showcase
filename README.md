@@ -227,7 +227,7 @@ The technical solutions led to significant and quantifiable positive impacts.
 * **Backend:** Python, Flask
 * **Data & AI:** NumPy, Pandas, OpenAI API (GPT-4o-mini)
 * **Database:** MySQL
-* **Frontend:** Vue.js, Web Sockets
+* **Frontend:** Vue.js
 * **Infrastructure:** Google Cloud Run
 
 ---
