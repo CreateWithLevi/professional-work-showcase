@@ -12,29 +12,38 @@ This repository serves as a detailed showcase of my key projects, highlighting m
 
 ### 1. Project Description
 
-**Zuoluh** is a fintech platform designed to help users understand how their daily spending behavior aligns with their personal values. By integrating with bank accounts via the Plaid API and leveraging AI for analysis, the platform provides users with personalized insights, empowering them to make more conscious and value-driven financial decisions. The initial product will be a Progressive Web App (PWA), with plans to expand to a native mobile experience.
+**Zuoluh** is an intelligent fintech platform designed to help users understand how their daily spending behavior aligns with their personal values. By integrating with bank accounts via the Plaid API and leveraging a **Retrieval-Augmented Generation (RAG) system** powered by AI, the platform provides users with deeply personalized, context-aware insights about their spending patterns and the values alignment of merchants they support.
+
+The platform combines real-time transaction analysis with a comprehensive knowledge base of company ESG (Environmental, Social, and Governance) reports, sustainability certifications, and values-aligned merchant data. The initial product will be a Progressive Web App (PWA), with plans to expand to a native mobile experience.
 
 ### 2. The Challenge
 
-The primary architectural challenge is to build a secure, scalable, and highly personalized platform that can handle sensitive financial data while translating subjective user "values" into quantifiable analysis.
+The primary architectural challenge is to build a secure, scalable platform that translates subjective user "values" into quantifiable insights using AI-powered contextual intelligence.
 
-* **Complex Third-Party Integrations:** The system requires robust and secure integration with multiple complex APIs, primarily **Plaid** for banking data and **Google Gemini** for AI-powered insights.
-* **Personalized & Subjective Logic:** Unlike traditional financial apps, the core logic revolves around mapping objective transaction data to a user's subjective, self-defined values (e.g., "Eco-friendly," "Fair Trade"), which requires a flexible and intelligent data model.
-* **Data Security & Privacy:** Handling personal financial transaction data demands the highest level of security, requiring a secure architecture and strict data handling protocols from day one.
-* **Scalable Data Modeling:** The database schema must efficiently map relationships between users, transactions, merchants, values, and external certifications (like B Corp), and be designed to scale as the user base and data complexity grow.
+* **Complex Third-Party Integrations:** Secure integration with **Plaid** for banking data and **Google Gemini** for AI-powered insights.
+* **Personalized & Subjective Logic:** Mapping objective transaction data to user-defined values (e.g., "Eco-friendly," "Fair Trade") requires intelligent data modeling.
+* **Knowledge Base & RAG System:** Maintaining an ESG knowledge base (company reports, certifications) queryable through semantic search, allowing AI to retrieve relevant context when analyzing transactions.
+* **Data Security & Privacy:** Handling financial data demands strict security protocols from day one.
+* **AI Observability:** Monitoring LLM performance, cost tracking, and response quality is essential for a production AI system.
 
 ### 3. My Solution (Architectural Vision)
 
-As the technical lead, I have designed an **API-first, service-oriented architecture** to ensure scalability and maintainability.
+As the technical lead, I have designed an **API-first, RAG-enhanced, service-oriented architecture** to ensure scalability, maintainability, and intelligent context-aware insights.
 
 * **Phased Rollout Strategy:** The product is planned in phases, starting with a **PWA** to quickly validate the core features and gather user feedback, followed by **React Native** development for market expansion.
-* **Core Data Structure:** I designed a normalized PostgreSQL database schema centered around key entities: `Users`, `Transactions`, `Values`, `UserValuePreferences`, and `Insights`. This structure allows for flexible querying and efficient analysis of how spending reflects user preferences.
-* **Technology Stack & Rationale:**
-    * **Frontend:** PWA (likely using React/Next.js) for its cross-platform reach and fast initial delivery.
-    * **Backend Services:** A series of dedicated backend services (Authentication, Transactions, Insights) to handle specific domains of business logic.
-    * **AI Engine:** Utilizing **Google Gemini Flash 2.0** for its balance of performance and cost-effectiveness in generating personalized spending insights.
-    * **Database & Caching:** **PostgreSQL** was chosen for its robustness and powerful querying capabilities, supplemented by a **Redis** cache layer to improve performance for frequently accessed data.
-    * **Banking Integration:** Using the **Plaid API** for secure and standardized access to users' bank transaction data.
+
+* **Hybrid Data Architecture:** Dual-database approach combining **PostgreSQL** (relational data: Users, Transactions, Values) with **ChromaDB** (vector database for semantic search over ESG reports and merchant data)
+
+* **RAG System Implementation:** Custom-built system with tool-calling architecture:
+    * Maintains knowledge base of ESG reports and sustainability certifications
+    * AI uses search tools to query vector database: **Merchant Values Search** (retrieves ESG data) and **Values Alignment Tool** (matches user values against merchant practices)
+
+* **Technology Stack:**
+    * **Frontend:** PWA (React/Next.js), React Native (Phase 2)
+    * **Backend:** Microservices architecture (Auth, Transactions, Insights, RAG Service)
+    * **AI & RAG:** Google Gemini Flash 2.0, ChromaDB (vector DB), tool-calling architecture
+    * **Database:** PostgreSQL (transactional data), Redis (caching)
+    * **Integrations:** Plaid API (banking), LangFuse (LLM observability & cost tracking)
  
 ```mermaid
 graph TB
@@ -42,70 +51,95 @@ graph TB
         PWA[PWA Application]
         RN[React Native App<br/>Phase 2]
     end
-    
+
     subgraph "Backend Services"
         AUTH[Authentication Service<br/>/auth]
         TRANS[Transaction Service<br/>/transactions]
         VALUES[Values Service<br/>/values]
         INSIGHTS[Insights Service<br/>/insights]
         PLAID_SVC[Plaid Service<br/>/plaid]
+        RAG_SVC[RAG Service<br/>/rag]
     end
-    
-    subgraph "Core Services"
-        AI_ENGINE[AI Analysis Engine]
+
+    subgraph "Core AI Services"
+        AI_ENGINE[AI Analysis Engine<br/>Google Gemini]
+        RAG_SYSTEM[RAG System<br/>Tool-Calling Architecture]
+        TOOL_MGR[Tool Manager<br/>Search Tools]
         DATA_PROC[Data Processing Engine]
     end
-    
+
     subgraph "Data Layer"
-        DB[(PostgreSQL Database)]
+        DB[(PostgreSQL<br/>Transactional Data)]
+        VECTOR_DB[(ChromaDB<br/>Vector Store)]
         CACHE[(Redis Cache)]
     end
-    
+
+    subgraph "Observability"
+        LANGFUSE[LangFuse<br/>LLM Monitoring]
+    end
+
     subgraph "External APIs"
         PLAID_API[Plaid API]
         GEMINI_API[Google Gemini API]
     end
-    
-    %% Connections
+
+    %% Frontend Connections
     PWA --> AUTH
     PWA --> TRANS
     PWA --> VALUES
     PWA --> INSIGHTS
     PWA --> PLAID_SVC
-    
+
     RN --> AUTH
     RN --> TRANS
     RN --> VALUES
     RN --> INSIGHTS
     RN --> PLAID_SVC
 
+    %% Service Connections
     PLAID_SVC --> PLAID_API
-    INSIGHTS --> AI_ENGINE
+    INSIGHTS --> RAG_SYSTEM
+    RAG_SVC --> RAG_SYSTEM
+
+    %% RAG System Architecture
+    RAG_SYSTEM --> AI_ENGINE
+    RAG_SYSTEM --> TOOL_MGR
     AI_ENGINE --> GEMINI_API
-    
+    TOOL_MGR --> VECTOR_DB
+
+    %% Database Connections
     AUTH --> DB
     TRANS --> DB
     VALUES --> DB
     INSIGHTS --> DB
     PLAID_SVC --> DB
-    
+    RAG_SVC --> VECTOR_DB
+
     DATA_PROC --> DB
+    DATA_PROC --> VECTOR_DB
     DATA_PROC -- Processed Data --> CACHE
-    
+
     AI_ENGINE -- Reads from --> DB
     AI_ENGINE -- Reads from --> CACHE
+
+    %% Observability Connections
+    AI_ENGINE -.->|Traces & Metrics| LANGFUSE
+    RAG_SYSTEM -.->|Tool Calls & Performance| LANGFUSE
+    TOOL_MGR -.->|Search Metrics| LANGFUSE
 
     classDef frontend fill:#E3F2FD,stroke:#1976D2,stroke-width:2px
     classDef backend fill:#E8F5E8,stroke:#388E3C,stroke-width:2px
     classDef core fill:#FFF3E0,stroke:#F57C00,stroke-width:2px
     classDef data fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px
     classDef external fill:#FFEBEE,stroke:#D32F2F,stroke-width:2px
-    
+    classDef observability fill:#E1F5FE,stroke:#0277BD,stroke-width:2px,stroke-dasharray: 5 5
+
     class PWA,RN frontend
-    class AUTH,TRANS,VALUES,INSIGHTS,PLAID_SVC backend
-    class AI_ENGINE,DATA_PROC core
-    class DB,CACHE data
+    class AUTH,TRANS,VALUES,INSIGHTS,PLAID_SVC,RAG_SVC backend
+    class AI_ENGINE,RAG_SYSTEM,TOOL_MGR,DATA_PROC core
+    class DB,VECTOR_DB,CACHE data
     class PLAID_API,GEMINI_API external
+    class LANGFUSE observability
 ```
 
 ### 4. Results & Vision
@@ -116,12 +150,13 @@ While the project is in its early stages, the architectural design is complete a
 * **Long-Term Vision:** The platform is designed with a long-term strategy to evolve into a B2B data insights service, providing anonymized market trend reports and forming value-aligned merchant partnerships.
 * **Demonstrated Capability:** This project showcases my ability to not only execute on development tasks but also to **architect a complex digital product from the ground up**, aligning a comprehensive technical strategy with a clear product roadmap and a viable business model.
 
-### Tech Stack (Planned)
+### Tech Stack
 
 * **Frontend:** PWA (React/Next.js), React Native
-* **Backend:** Node.js (for services), PostgreSQL
-* **AI & Data:** Google Gemini, Redis, Plaid API
-* **Infrastructure:** Cloud-based deployment (e.g., Vercel, GCP)
+* **Backend:** Node.js, PostgreSQL, ChromaDB (vector DB)
+* **AI & RAG:** Google Gemini Flash 2.0, LangFuse (observability)
+* **Integrations:** Plaid API, Redis
+* **Infrastructure:** Cloud deployment (Vercel/GCP)
 
 ---
 
